@@ -1,0 +1,41 @@
+import React, { useState } from 'react';
+import MessageList from './components/MessageList';
+import TypingIndicator from './components/TypingIndicator';
+import EmojiPicker from './components/EmojiPicker';
+import socket from './socket';
+
+function App() {
+  const [messages, setMessages] = useState([]);
+  const [typingUser, setTypingUser] = useState(null);
+  const [message, setMessage] = useState('');
+
+  const sendMessage = () => {
+    socket.emit('sendMessage', { message, username: 'User' });
+    setMessages([...messages, { message, username: 'User' }]);
+    setMessage('');
+  };
+
+  const handleTyping = () => {
+    socket.emit('typing', 'User');
+  };
+
+  const handleEmojiSelect = (emoji) => {
+    setMessage((prevMessage) => prevMessage + emoji.emoji);
+  };
+
+  return (
+    <div>
+      <MessageList messages={messages} />
+      <TypingIndicator typingUser={typingUser} />
+      <input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyPress={handleTyping}
+      />
+      <button onClick={sendMessage}>Send</button>
+      <EmojiPicker onSelectEmoji={handleEmojiSelect} />
+    </div>
+  );
+}
+
+export default App;
